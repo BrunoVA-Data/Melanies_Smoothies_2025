@@ -1,5 +1,6 @@
 # 🐍 Importar paquetes de Python
 import streamlit as st
+from snowflake.snowpark.functions import col # <-- Esta línea fue añadida
 from snowflake.snowpark.exceptions import SnowparkClientException
 
 # 🖥️ Mostrar título y subtítulo
