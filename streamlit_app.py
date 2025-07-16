@@ -1,43 +1,49 @@
-# 🐍 Importar paquetes necesarios
+# 🐍 Importar paquetes de Python
 import streamlit as st
-from snowflake.snowpark.functions import col, when_matched
+from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark.functions import col
  
-# 🖥️ Título de la app
-st.title(":cup_with_straw: Pending Smoothie Orders :cup_with_straw:")
-st.write("Orders that need to be filled.")
+# 🖥️ Mostrar título y subtítulo
+st.title(":cup_with_straw: Customize Your Smoothie! :cup_with_straw:")
+st.write(
+    """
+    **Choose the fruits you want in your custom Smoothie!**
+    """
+)
  
-# 🔗 Conectarse a la sesión activa de Snowflake
+# 🧑‍💻 Entrada del nombre del cliente
+name_on_order = st.text_input('Name on Smoothie:')
+st.write('The name on your Smoothie will be:', name_on_order)
+ 
+# 📥 Conexión a Snowflake y carga de datos
 session = get_active_session()
  
-# 📥 Traer pedidos no llenados
-my_dataframe = session.table("smoothies.public.orders").filter(col("ORDER_FILLED") == 0)
-
-cnx = st.connection("snowflake")
-session = st. connection()
-
-# ✅ Verificar si hay datos
-if my_dataframe.count() > 0:
-    # ✏️ Editor interactivo
-    editable_df = st.data_editor(my_dataframe)
-    submitted = st.button("Submit")
+# Seleccionar solo la columna con los nombres de frutas
+my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME"))
+fruit_options = my_dataframe.to_pandas()["FRUIT_NAME"].tolist()  # Convertir a lista de strings
  
-    if submitted:
-        og_dataset = session.table("smoothies.public.orders")
-        edited_dataset = session.create_dataframe(editable_df)
+# 🧃 Selección de ingredientes con límite de 5 frutas
+ingredients_list = st.multiselect(
+    'Choose up to 5 ingredients:',
+    fruit_options,
+    max_selections=6  # ⛔️ Restringir máximo 5 selecciones
+)
  
-        try:
-            # 🔁 MERGE para actualizar los pedidos
-            og_dataset.merge(
-                edited_dataset,
-                og_dataset["ORDER_UID"] == edited_dataset["ORDER_UID"],
-                [when_matched().update({"ORDER_FILLED": edited_dataset["ORDER_FILLED"]})]
-            )
-            # ✅ Mostrar mensaje solo si fue exitoso
-            st.success("Order(s) updated! 👍", icon="✅")
-        except:
-            # ❌ Si falla, mostrar error
-            st.error("Something went wrong while updating.", icon="⚠️")
+# 🔁 Formatear ingredientes seleccionados como string
+if ingredients_list:
+    ingredients_string = ''
+    for fruit_chosen in ingredients_list:
+        ingredients_string += str(fruit_chosen) + ' '
  
-else:
-    # 💤 No hay pedidos pendientes
-    st.success("There are no pending orders right now.", icon="👍")
+    # 📤 Crear el statement SQL de inserción
+    my_insert_stmt = """
+        insert into smoothies.public.orders (ingredients, name_on_order)
+        values ('""" + ingredients_string.strip() + """','""" + name_on_order + """')
+    """
+ 
+    # ⏩ Botón para enviar pedido
+    time_to_insert = st.button('Submit Order')
+ 
+    if time_to_insert:
+        session.sql(my_insert_stmt).collect()
+        st.success("Your Smoothie is ordered, " + name_on_order + "!")
