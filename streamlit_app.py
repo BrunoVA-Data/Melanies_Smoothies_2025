@@ -1,6 +1,5 @@
 # 🐍 Importar paquetes de Python
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
  
 # 🖥️ Mostrar título y subtítulo
@@ -10,7 +9,10 @@ st.write(
     **Choose the fruits you want in your custom Smoothie!**
     """
 )
- 
+
+cnx = st.connection("snowflake")
+session = st. connection()
+
 # 🧑‍💻 Entrada del nombre del cliente
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
