@@ -1,62 +1,81 @@
 # 🐍 Importar paquetes de Python
+
 import streamlit as st
-from snowflake.snowpark.functions import col # <-- Esta línea fue añadida
-from snowflake.snowpark.exceptions import SnowparkClientException
 
+from snowflake.snowpark.context import get_active_session
+
+from snowflake.snowpark.functions import col
+ 
 # 🖥️ Mostrar título y subtítulo
-st.title(":cup_with_straw: ¡Personaliza tu Batido! :cup_with_straw:")
+
+st.title(":cup_with_straw: Customize Your Smoothie! :cup_with_straw:")
+
 st.write(
-    """
-    **¡Elige las frutas que quieres en tu Batido personalizado!**
-    """
-)
 
+    """
+
+    **Choose the fruits you want in your custom Smoothie!**
+
+    """
+
+)
+ 
 # 🧑‍💻 Entrada del nombre del cliente
-name_on_order = st.text_input('Nombre en el Batido:')
-st.write('El nombre en tu Batido será:', name_on_order)
 
+name_on_order = st.text_input('Name on Smoothie:')
+
+st.write('The name on your Smoothie will be:', name_on_order)
+ 
 # 📥 Conexión a Snowflake y carga de datos
-# Corrección del problema de conexión:
-# Usar st.connection() para obtener el objeto de conexión
-# y luego .session para obtener la sesión de Snowpark.
-try:
-    conn = st.connection("snowflake")
-    session = conn.session
-except SnowparkClientException as e:
-    st.error(f"Error al conectar con Snowflake: {e}. Asegúrate de que tu configuración de conexión es correcta.")
-    st.stop() # Detener la ejecución si no se puede conectar
 
+session = get_active_session()
+ 
 # Seleccionar solo la columna con los nombres de frutas
+
 my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME"))
-# Convertir a lista de strings
-fruit_options = my_dataframe.to_pandas()["FRUIT_NAME"].tolist() 
 
+fruit_options = my_dataframe.to_pandas()["FRUIT_NAME"].tolist()  # Convertir a lista de strings
+ 
 # 🧃 Selección de ingredientes con límite de 5 frutas
+
 ingredients_list = st.multiselect(
-    'Elige hasta 5 ingredientes:',
+
+    'Choose up to 5 ingredients:',
+
     fruit_options,
-    max_selections=5  # ✅ Restringir máximo 5 selecciones
+
+    max_selections=6  # ⛔️ Restringir máximo 5 selecciones
+
 )
-
+ 
 # 🔁 Formatear ingredientes seleccionados como string
+
 if ingredients_list:
-    ingredients_string = ', '.join(ingredients_list) # Formato más limpio con join
 
+    ingredients_string = ''
+
+    for fruit_chosen in ingredients_list:
+
+        ingredients_string += str(fruit_chosen) + ' '
+ 
     # 📤 Crear el statement SQL de inserción
-    my_insert_stmt = f"""
+
+    my_insert_stmt = """
+
         insert into smoothies.public.orders (ingredients, name_on_order)
-        values ('{ingredients_string}', '{name_on_order}')
+
+        values ('""" + ingredients_string.strip() + """','""" + name_on_order + """')
+
     """
-
+ 
     # ⏩ Botón para enviar pedido
-    time_to_insert = st.button('Enviar Pedido')
 
+    time_to_insert = st.button('Submit Order')
+ 
     if time_to_insert:
-        try:
-            session.sql(my_insert_stmt).collect()
-            st.success("¡Tu Batido ha sido ordenado, " + name_on_order + "!")
-        except Exception as e:
-            st.error(f"Error al enviar el pedido: {e}. Por favor, inténtalo de nuevo.")
-else:
-    st.info("Por favor, selecciona al menos un ingrediente para tu batido.")
 
+        session.sql(my_insert_stmt).collect()
+
+        st.success("Your Smoothie is ordered, " + name_on_order + "!")
+
+ 
