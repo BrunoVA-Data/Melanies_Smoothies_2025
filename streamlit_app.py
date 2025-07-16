@@ -24,7 +24,7 @@ session = cnx.session()
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'),col('SEARCH_ON'))
 #st.dataframe(data=my_dataframe, use_container_width=True)
 #st.stop()
-#fruit_options = my_dataframe.to_pandas()["FRUIT_NAME"].tolist()  # Convertir a lista de strings
+fruit_options = my_dataframe.to_pandas()["FRUIT_NAME"].tolist()  # Convertir a lista de strings
 
 # Convert the Snowpark Dataframe to a Pandas Dataframe so we can use the LOC function
 pd_df=my_dataframe.to_pandas()
