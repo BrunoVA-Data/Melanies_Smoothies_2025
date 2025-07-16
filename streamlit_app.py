@@ -1,6 +1,5 @@
 # 🐍 Importar paquetes necesarios
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col, when_matched
  
 # 🖥️ Título de la app
@@ -12,7 +11,10 @@ session = get_active_session()
  
 # 📥 Traer pedidos no llenados
 my_dataframe = session.table("smoothies.public.orders").filter(col("ORDER_FILLED") == 0)
- 
+
+cnx = st.connection("snowflake")
+session = st. connection()
+
 # ✅ Verificar si hay datos
 if my_dataframe.count() > 0:
     # ✏️ Editor interactivo
