@@ -15,8 +15,6 @@ st.write(
     """
 )
 
-cnx = st.connection("snowflake")
-session = cnx.session()
  
 # 🧑‍💻 Entrada del nombre del cliente
 
@@ -26,7 +24,8 @@ st.write('The name on your Smoothie will be:', name_on_order)
  
 # 📥 Conexión a Snowflake y carga de datos
 
-session = get_active_session()
+cnx = st.connection("snowflake")
+session = cnx.session()
  
 # Seleccionar solo la columna con los nombres de frutas
 
