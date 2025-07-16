@@ -22,8 +22,8 @@ pd_df=my_dataframe.to_pandas()
 # 🧃 Selección de ingredientes con límite de 5 frutas
 ingredients_list = st.multiselect(
     'Choose up to 5 ingredients:',
-@@ -35,8 +43,12 @@
     ingredients_string = ''
+    
     for fruit_chosen in ingredients_list:
         ingredients_string += fruit_chosen + ' '
 
