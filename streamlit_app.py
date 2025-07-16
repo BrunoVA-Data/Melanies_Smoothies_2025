@@ -35,7 +35,7 @@ pd_df=my_dataframe.to_pandas()
 ingredients_list = st.multiselect(
     'Choose up to 5 ingredients:',
     fruit_options,
-    max_selections=6  # ⛔️ Restringir máximo 5 selecciones
+    max_selections=5  # ⛔️ Restringir máximo 5 selecciones
 )
  
 # 🔁 Formatear ingredientes seleccionados como string
