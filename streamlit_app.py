@@ -1,7 +1,7 @@
 # 🐍 Importar paquetes de Python
 import streamlit as st
 import requests
-from snowflake.snowpark.functions import col
+#from snowflake.snowpark.functions import col
 from snowflake.snowpark.exceptions import SnowparkClientException # Importación necesaria para el manejo de errores
 
 # 🖥️ Mostrar título y subtítulo
