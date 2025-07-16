@@ -48,19 +48,20 @@ if ingredients_list:
         #st.write('The search value for ', fruit_chosen, ' is ', search_on, '.')
 
         st.subheader(fruit_chosen + ' Nutrition Information')
-        smoothiefroot_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_chosen + search_on)
-        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_chosen + search_on)
+        sf_df = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
 
 
  
-  # 📤 Crear el statement SQL de inserción
-my_insert_stmt = """
-     insert into smoothies.public.orders (ingredients, name_on_order)
-    values ('""" + ingredients_string.strip() + """','""" + name_on_order + """')
- """
+    # 📤 Crear el statement SQL de inserción
+    my_insert_stmt = """
+        insert into smoothies.public.orders (ingredients, name_on_order)
+        values ('""" + ingredients_string.strip() + """','""" + name_on_order + """')
+    """
  
- # ⏩ Botón para enviar pedido
-time_to_insert = st.button('Submit Order')
+    # ⏩ Botón para enviar pedido
+    time_to_insert = st.button('Submit Order')
     if time_to_insert:
         session.sql(my_insert_stmt).collect()
         st.success("Your Smoothie is ordered, " + name_on_order + "!")
+
